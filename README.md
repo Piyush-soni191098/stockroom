@@ -1,3 +1,6 @@
+   Live: https://stockroom-ebon.vercel.app
+   Repo: https://github.com/Piyush-soni191098/stockroom
+
 # Stockroom
 
 Multi-tenant inventory and order fulfillment, built for the L3 screening brief. Several businesses share one app, each one only sees its own warehouses, products, stock and orders, and orders can't oversell even when they come in at the same time.
