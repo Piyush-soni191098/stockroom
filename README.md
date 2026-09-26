@@ -285,11 +285,54 @@ proxy.ts               refreshes the auth session
 scripts/verify.mjs     isolation, race and reconciliation tests
 ```
 
-## With another week
+## How to use it
 
-- Invite teammates into an existing tenant, with basic roles (admin, picker).
-- A proper order lifecycle: cancel (puts stock back with a positive movement) and ship.
-- pgTAP tests for every policy and generated DB types, run in CI.
-- Only allow stock movements through the database functions, not direct inserts.
-- A way to resolve or investigate flags from the UI, including a correcting movement for drift.
-- Search and pagination on the history, and a per-tenant setting for what counts as stale.
+### Getting in
+
+Open the app and create an account with your email and a password (6+ characters). If email confirmation is on, you'll get a link by email. Click it and you're signed in. Next you're asked for a business name. That creates your workspace, and you're the only one who can see what's in it.
+
+### Setting up
+
+Everything you do is on the right side of the dashboard. Start at the bottom:
+
+- **Add warehouse**: one for each place you keep stock, e.g. Jaipur and Jodhpur.
+- **Add product**: a SKU (short code like `TSH-01`), a name, and the alert level. When stock in a warehouse drops to that number or below, it turns orange and gets flagged.
+
+Adding a product doesn't put it in any warehouse. It starts at 0 everywhere.
+
+### Day-to-day
+
+- **Receive stock**: when a delivery arrives. Pick the product, the warehouse and how many came in.
+- **Transfer between warehouses**: moves units from one warehouse to another in one go. If the source doesn't have enough, nothing moves.
+- **Place order**: pick the warehouse it ships from and up to three products with quantities. The stock is reserved immediately. If any line is short, the whole order is rejected with "insufficient stock" and nothing is reserved.
+
+### Reading the dashboard
+
+- **Stock on hand**: products down the side, warehouses across the top. Orange numbers are at or below the alert level.
+- **Reconciliation flags**: what the automatic check found. It runs every 15 minutes and looks for low stock, stock that hasn't moved in 30 days, and counts that don't match the history (shown in red).
+- **Recent orders**: the last 10 orders and what was in them.
+- **Movement history**: every change, newest first. `+` is stock coming in, `-` is stock going out, and each transfer shows up as a matching out/in pair.
+
+### A quick run-through
+
+1. Add warehouses Jaipur and Jodhpur, and a product TSH-01 / T-shirt with alert level 2.
+2. Receive 10 into Jaipur, then transfer 4 to Jodhpur. You'll see 6 and 4.
+3. Try transferring 50. You get "insufficient stock" and the numbers don't change.
+4. Order 4 from Jodhpur. It drops to 0 and turns orange. Another order from Jodhpur is rejected.
+5. Sign out and create a second business. It starts completely empty and can't see anything from the first one.
+
+### Running the tests
+
+`scripts/verify.mjs` checks the three things the brief cares most about, against the real database. With the app's `.env` filled in, including the secret key, run:
+
+```bash
+npm run verify
+```
+
+It creates two throwaway businesses and then:
+
+- has the second one try to read, edit and write into the first one's data (isolation)
+- fires 20 orders at the same moment for the last unit in stock (race)
+- runs the reconciliation job twice, then fakes a bad stock count and runs it again (idempotency and drift)
+
+Each check prints PASS or FAIL. All of them should pass.
