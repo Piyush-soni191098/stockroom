@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "verify": "node --env-file=.envscripts/verify.mjs"
+    "verify": "node --env-file=.env scripts/verify.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
