@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #1d2a33;
+  --color-muted: #5b6b76;
+  --color-line: #d5dde2;
+  --color-paper: #f4f6f7;
+  --color-brand: #0f5f63;
+  --color-warn: #a4560c;
+  --color-bad: #b42318;
+}
+
+body { @apply bg-paper text-ink antialiased; }
+input, select { @apply w-full rounded border border-line bg-white px-2 py-1.5 text-sm focus:outline-2 focus:outline-brand; }
+button { @apply rounded bg-brand px-3 py-1.5 text-sm font-medium text-white hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand; }
