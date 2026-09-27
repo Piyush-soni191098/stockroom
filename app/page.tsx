@@ -18,8 +18,8 @@ const Pick = ({ name, opts, hint }: { name: string; opts: Opt[]; hint: string })
   </select>
 );
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ msg?: string }> }) {
-  const { msg } = await searchParams;
+export default async function Home({ searchParams }: { searchParams: Promise<{ msg?: string; err?: string }> }) {
+  const { msg, err } = await searchParams;
   const sb = await db();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect("/login");
@@ -60,7 +60,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ m
         <h1 className="text-xl font-semibold">{tenant.name}</h1>
         <form action={act.signOut}><button className="bg-transparent text-muted hover:underline">Sign out {user.email}</button></form>
       </header>
-      {msg && <p className="rounded border border-line bg-white p-2 text-sm">{msg}</p>}
+      {msg && <p className={`rounded border p-2 text-sm ${err ? "border-bad bg-red-50 text-bad" : "border-line bg-white"}`}>{msg}</p>}
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">

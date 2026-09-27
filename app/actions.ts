@@ -23,7 +23,8 @@ async function run<S extends z.ZodType>(schema: S, input: unknown, call: (sb: DB
     if (error) msg = error.code === "23505" ? "That already exists. Pick a different name or SKU." : error.message;
   }
   revalidatePath("/");
-  redirect("/?msg=" + encodeURIComponent(msg));
+  // err=1 tells the page to show the message in red
+  redirect("/?msg=" + encodeURIComponent(msg) + (msg === ok ? "" : "&err=1"));
 }
 
 const form = (f: FormData) => Object.fromEntries(f);
