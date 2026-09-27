@@ -6,7 +6,7 @@ import { z } from "zod";
 import { db } from "@/lib/supabase";
 
 type DB = Awaited<ReturnType<typeof db>>;
-type Result = PromiseLike<{ error: { message: string } | null }>;
+type Result = PromiseLike<{ error: { message: string; code?: string } | null }>;
 
 const id = z.uuid("Pick an option");
 const qty = z.coerce.number().int().positive("Quantity must be at least 1");
@@ -19,7 +19,8 @@ async function run<S extends z.ZodType>(schema: S, input: unknown, call: (sb: DB
   if (!parsed.success) msg = parsed.error.issues[0].message;
   else {
     const { error } = await call(await db(), parsed.data);
-    if (error) msg = error.message;
+    // 23505 = unique violation (duplicate warehouse name or SKU)
+    if (error) msg = error.code === "23505" ? "That already exists. Pick a different name or SKU." : error.message;
   }
   revalidatePath("/");
   redirect("/?msg=" + encodeURIComponent(msg));
